@@ -1,6 +1,6 @@
 {
   "name": "acronym-cli",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "This is an example of a simple CLI as an npm package",
   "main": "bin/index.js",
   "bin": {
