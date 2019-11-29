@@ -1,48 +1,9 @@
 const fs = require('fs');
 const path = require('path');
 
-// function walkDir(dir, callback) {
-//     fs.readdirSync(dir).forEach( f => {
-//       let dirPath = path.join(dir, f);
-//       let isDirectory = fs.statSync(dirPath).isDirectory();
-//       isDirectory ? 
-//         walkDir(dirPath, callback) : callback(path.join(dir, f));
-//     });
-//   };
-
-// var totalImages = 0;
-
-// walkDir('./products', function(filePath) {
-//     if (path.extname(filePath) == '.md') {
-
-//         var contents = fs.readFileSync(filePath, 'utf8');
-
-//         var regex = /(\!\[.+\]\(.+\))/g;
-//         var found = contents.match(regex);
-
-//         if (found) {
-//             console.log("----------");
-//             console.log(filePath);
-//             console.log("----------");
-//             console.log(found);
-//             totalImages += found.length;
-//             // for (var i = 0; i < found.length; i++) {
-//             //     var temp_path = JSON.stringify(found[i], null, 2);
-//             //     var firstIndex = temp_path.indexOf('/images');
-//             //     var new_path = temp_path.substring(firstIndex + 1, temp_path.length - 2);
-//             //     var exists = fs.existsSync(new_path);
-//             //     if (!exists) console.log("Missing image: ", new_path);
-//             // }
-//         }
-//     }
-// });
-
-// console.log("Images found:", totalImages);
-
-// //Missing image:  "![Screen-Shot-2018-12-03-at-8.31.48-PM.png](https://support.packet.com/file.php/local/303905WCCXWAGDARANNMD0/Screen-Shot-2018-12-03-at-8.31.48-PM.png
-// //![add VLAN jpg](https://raw.githubusercontent.com/packethost/docs/master/images/layer-2-overview/add-vlan.jpg "Add a VLAN")
-
 function checkIfEmpty(pathList) {
+    if (!pathList) return [];
+
     var emptyPaths = [];
     for (var i = 0; i < pathList.length; i++) {
         var currentPath = pathList[i];
@@ -66,6 +27,9 @@ function mainImageCheck(filePath) {
     // }
     // console.log(pathList);
 
+    console.log("---");
+    console.log("Now checking ", filePath, "...");
+
     var emptyPaths = checkIfEmpty(pathList);
     if (emptyPaths.length > 0) {
         console.error("The following image tags are incomplete:");
@@ -74,8 +38,29 @@ function mainImageCheck(filePath) {
     }
 
     console.log("Test completed. All image tags are correct and functional!");
+    console.log("---");
 }
 
+function walkDir(dir, callback) {
+    fs.readdirSync(dir).forEach( f => {
+      let dirPath = path.join(dir, f);
+      let isDirectory = fs.statSync(dirPath).isDirectory();
+      isDirectory ? 
+        walkDir(dirPath, callback) : callback(path.join(dir, f));
+    });
+  };
 
-mainImageCheck('./test.md');
+var totalImages = 0;
+
+walkDir('./products', function(filePath) {
+    if (path.extname(filePath) == '.md') {
+        mainImageCheck(filePath);
+    }
+});
+
+// Missing image:  "![Screen-Shot-2018-12-03-at-8.31.48-PM.png](https://support.packet.com/file.php/local/303905WCCXWAGDARANNMD0/Screen-Shot-2018-12-03-at-8.31.48-PM.png
+// ![add VLAN jpg](https://raw.githubusercontent.com/packethost/docs/master/images/layer-2-overview/add-vlan.jpg "Add a VLAN")
+// var exists = fs.existsSync(new_path);
+
+
 
