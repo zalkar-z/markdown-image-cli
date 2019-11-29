@@ -10,4 +10,11 @@ const options = yargs
 
  const greeting = `Hello, ${options.name} ${options.lastName}!`;
 
-console.log(greeting);
+if (options.name == 'zalkar' && options.lastName == 'ziiaidin') {
+    console.log(greeting);
+} else {
+    console.log("Wrong credentials!");
+    process.exit(1);
+}
+
+
