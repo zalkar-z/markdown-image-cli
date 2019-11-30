@@ -45,6 +45,19 @@ function checkImageLink(pathList) {
     return [internalPaths, externalPaths];
 }
 
+function checkIfImageExists(pathList) {
+    if (!pathList) return [];
+
+    let deadPaths = [];
+
+    for (var i = 0; i < pathList.length; i++) {
+        if (!fs.existsSync("." + pathList[i])) {
+            deadPaths.push(pathList[i]);
+        }
+    }
+    return deadPaths;
+}
+
 function mainImageCheck(filePath) {
     var contents = fs.readFileSync(filePath, 'utf8');
     var regex = /(\!\[.*\]\(.*\))/g;
@@ -57,6 +70,10 @@ function mainImageCheck(filePath) {
     const [internalPaths, externalPaths] = checkImageLink(pathList);
     if (externalPaths.length > 0)
         errors.push([filePath, "The following links should referr to internal /images directory:", externalPaths]);
+    
+    const deadPaths = checkIfImageExists(internalPaths);
+    if (deadPaths.length > 0)
+        errors.push([filePath, "The following images are referred in markdown files, but don't exist in local /images directory:", deadPaths]);
 }
 
 function walkDir(dir, callback) {
@@ -90,5 +107,3 @@ if (errors.length > 0) {
 } else {
     console.log("All image tags are correct and functional. Good job!");
 }
-
-//mainImageCheck('./test.md');
