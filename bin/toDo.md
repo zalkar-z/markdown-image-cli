@@ -1,12 +1,7 @@
 get all the image tags
 
-check if empty (alt text and link filled)
-
-
-2) check if internal/external link
-3) bucket external links
-4) check internal links
-5) bucket dead internal links
-
-6) check if any of two buckets are non-empty. if som throw an error and show it
-7) "Check complete"
+1 -> check if empty (alt text and link filled) - Done
+2 -> bucket internal / external links
+3 -> throw error if external.length > 0
+4 -> check internal links, bucket dead ones
+5 -> throw error if dead.length > 0
