@@ -9,6 +9,8 @@ const options = yargs
  .option("d", { alias: "directory", describe: "Directory to be scanned", type: "string", demandOption: true })
  .argv;
 
+ var errors = [];
+
 function checkIfEmpty(pathList) {
     if (!pathList) return [];
 
@@ -25,28 +27,36 @@ function checkIfEmpty(pathList) {
     return emptyPaths;
 }
 
+function checkImageLink(pathList) {
+    if (!pathList) return [[], []];
+
+    var internalPaths = [];
+    var externalPaths = []; // everything that is not referring to /images directory
+
+    for (var i = 0; i < pathList.length; i++) {
+        var firstIndex = pathList[i].indexOf("](");
+        var newImagePath = pathList[i].substring(firstIndex + 2, pathList[i].length - 1);
+        if (newImagePath.indexOf("/images") == 0) {
+            internalPaths.push(newImagePath);
+        } else {
+            externalPaths.push(newImagePath);
+        }
+    }
+    return [internalPaths, externalPaths];
+}
+
 function mainImageCheck(filePath) {
     var contents = fs.readFileSync(filePath, 'utf8');
     var regex = /(\!\[.*\]\(.*\))/g;
     var pathList = contents.match(regex);
 
-    // for (var i = 0; i < pathList.length; i++) {
-    //     console.log(pathList[i]);
-    // }
-    // console.log(pathList);
+    const emptyPaths = checkIfEmpty(pathList);
+    if (emptyPaths.length > 0) 
+        errors.push([filePath, "The following image tags are incomplete:", emptyPaths]);
 
-    console.log("---");
-    console.log("Now checking ", filePath, "...");
-
-    var emptyPaths = checkIfEmpty(pathList);
-    if (emptyPaths.length > 0) {
-        console.error("The following image tags are incomplete:");
-        console.error(emptyPaths);
-        process.exit(1);
-    }
-
-    console.log("Test completed. All image tags are correct and functional!");
-    console.log("---");
+    const [internalPaths, externalPaths] = checkImageLink(pathList);
+    if (externalPaths.length > 0)
+        errors.push([filePath, "The following links should referr to internal /images directory:", externalPaths]);
 }
 
 function walkDir(dir, callback) {
@@ -58,7 +68,6 @@ function walkDir(dir, callback) {
     });
   };
 
-var totalImages = 0;
 
 walkDir(options.directory, function(filePath) {
     if (path.extname(filePath) == '.md') {
@@ -66,4 +75,20 @@ walkDir(options.directory, function(filePath) {
     }
 });
 
+if (errors.length > 0) {
+    console.error("There are errors to be fixed:");
+    for (let i = 0; i < errors.length; i++) {
+        console.log("-");
+        console.log("File:", errors[i][0]);
+        console.log("Error:", errors[i][1]);
+        let temp = errors[i][2];
+        for (let j = 0; j < temp.length; j++) {
+            console.log(temp[j]);
+        }
+    }
+    process.exit(1);
+} else {
+    console.log("All image tags are correct and functional. Good job!");
+}
 
+//mainImageCheck('./test.md');
