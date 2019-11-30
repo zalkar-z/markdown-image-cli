@@ -69,7 +69,7 @@ function mainImageCheck(filePath) {
 
     const [internalPaths, externalPaths] = checkImageLink(pathList);
     if (externalPaths.length > 0)
-        errors.push([filePath, "The following links should referr to internal /images directory:", externalPaths]);
+        errors.push([filePath, "The following links should refer to internal /images directory:", externalPaths]);
     
     const deadPaths = checkIfImageExists(internalPaths);
     if (deadPaths.length > 0)
